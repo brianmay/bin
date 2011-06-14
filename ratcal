@@ -1,4 +1,4 @@
-#!@cfg/sh@ -e
+#!/bin/sh -e
 today="$(date +' %R - %A %n %F - %B')"
 date="$(date +'%e')"
 cal="$(cal -m | tail -n +2 | sed -e 's/^.*$/ & /' -e 's/\ '"$date"' /\<'"$date"'\>/')"

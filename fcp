@@ -1,2 +1,2 @@
-#!@cfg/sh@ -e
+#!/bin/sh -e
 scp -S fsh "$@"

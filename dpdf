@@ -1,4 +1,4 @@
-#!@cfg/sh@ -e
+#!/bin/sh -e
 #### This code is written by Trent W. Buck <trentbuck@gmail.com> and
 #### placed in the Public Domain.  All warranties are disclaimed.
 x="$1"
