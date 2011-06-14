@@ -15,7 +15,7 @@ open_window() {
     then
         if [ -n "$*" ]
         then
-            exec rxvt -name "$THEME" -title "$TITLE" -e "$@"
+            exec rxvt -name "$THEME" -title "$TITLE" -e "showerror" "$@"
         else
             exec rxvt -name "$THEME" -title "$TITLE"
         fi
