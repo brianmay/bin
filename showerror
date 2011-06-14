@@ -1,23 +1,15 @@
 #!/usr/bin/python
 import os
 import sys
-import time
-import signal
+import subprocess
 
-def check_status(status):
+try:
+    status = subprocess.check_call(sys.argv[1:])
     if status != 0:
         print "Child returned %d"%status
         sys.stdin.readline()
     exit(status)
-
-def handler(signum, frame):
-    pid,status = os.waitpid(child, 0)
-    check_status(status)
-
-signal.signal(signal.SIGCHLD, handler)
-child=os.fork()
-if child==0:
-    os.execvp(sys.argv[1],sys.argv[1:])
-    sys.exit(1)
-else:
-    time.sleep(5)
+except Exception, e:
+    print e
+    sys.stdin.readline()
+    exit(1)
