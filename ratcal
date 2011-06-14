@@ -1,0 +1,11 @@
+#!@cfg/sh@ -e
+today="$(date +' %R - %A %n %F - %B')"
+date="$(date +'%e')"
+cal="$(cal -m | tail -n +2 | sed -e 's/^.*$/ & /' -e 's/\ '"$date"' /\<'"$date"'\>/')"
+
+output="
+$today
+
+$cal"
+
+ratpoison -c "echo $output"

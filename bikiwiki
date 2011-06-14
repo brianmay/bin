@@ -1,0 +1,25 @@
+#!/bin/sh -e
+if [ "$1" = "--rebuild" ]
+then
+    OPT="--rebuild"
+    shift
+else
+    OPT="--refresh"
+fi
+
+for i in "$@"
+do
+    if ! [ -e "$i.umask" ]
+    then
+        echo "Cannot find $i.umask" 1>&2
+        exit 1
+    fi
+    if ! [ -e "$i.setup" ]
+    then
+        echo "Cannot find $i.setup" 1>&2
+        exit 1
+    fi
+
+    umask `cat "$i.umask"`
+    ikiwiki --setup $i.setup --verbose "$OPT"
+done

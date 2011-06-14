@@ -1,0 +1,35 @@
+#!/usr/bin/python
+from optparse import OptionParser
+import sys
+import hashlib
+import gzip
+
+def main():
+        parser = OptionParser()
+        (options, args) = parser.parse_args()
+
+        blocksize = 1024
+
+        for filename in args:
+                m = hashlib.md5()
+                f = gzip.GzipFile(filename)
+                position = 0
+
+                while True:
+                        c = f.read(blocksize)
+                        m.update(c)
+
+                        bytes_read = len(c)
+                        position = position + bytes_read
+
+                        if bytes_read == 0:
+                                break
+
+
+                print "%s %s %d"%(filename,m.hexdigest(),position)
+                f.close()
+
+        return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

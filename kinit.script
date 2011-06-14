@@ -1,0 +1,76 @@
+#!/usr/bin/expect -f
+
+trap exit SIGINT
+
+
+set abort 0
+set i 1
+while { $i <= 3 && $abort<=0 } {
+        if {[llength $argv]>0} {
+                set index [expr [llength $argv] - 1]
+                set host [lindex $argv $index]
+                set prompt "krb5 $host try $i"
+        } else {
+                set prompt "krb5 try $i"
+        }
+
+        spawn ssh-askpass $prompt;
+        expect {
+                -re "(.*)\r\n" {
+                        set password $expect_out(1,string);
+                        expect eof;
+                } eof {
+                        set password "";
+                }
+        }
+        set rc [ wait ];
+        if {[lindex $rc 2] == -1} {
+                exec xmessage "error running ssk-askpass $rc\n";
+                exit 1
+        }
+        if {[lindex $rc 3] != 0} {
+                send_user "ssh_askpass aborted\n";
+                exit 1
+        }
+
+        spawn kinit $argv;
+        expect {
+                -re "Password: $" {
+                        send "$password\r"
+                } eof {
+                        exec xmessage "eof waiting for password prompt\n";
+                        wait;
+                        exit 1
+                }
+        }
+
+        expect {
+                -re "kinit: (Password incorrect)\r\n" {
+                        set msg $expect_out(1,string);
+                        expect eof;
+                }
+                -re "kinit: (.+)\r\n" {
+                        set msg $expect_out(1,string);
+                        expect eof;
+                        set abort 1
+                } eof {
+                        set msg "no message";
+                }
+        }
+        set rc [ wait ];
+        if {[lindex $rc 2] != 0} {
+                exec xmessage "error running kinit $rc\n";
+                set abort 1
+        }
+        if {[lindex $rc 3] == 0} {
+                exit 0
+        }
+        exec xmessage "error: $msg";
+
+        incr i;
+}
+
+if ($abort<=0) {
+        exec xmessage "Too many tries: give up\n";
+}
+exit 1

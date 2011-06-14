@@ -1,0 +1,12 @@
+#!@cfg/sh@ -e
+#### This code is written by Trent W. Buck <trentbuck@gmail.com> and
+#### placed in the Public Domain.  All warranties are disclaimed.
+x="$1"
+shift
+case "$x" in
+    ps) zcat "$@";;
+    man) man -Tps "$@";;
+    html) html2ps "$@";;
+    perl) perldoc -onroff "$@" | tbl | groff -mandoc -Tps -P-g;;
+esac |
+exec with-temp-dir sh -c 'ps2pdf - x.pdf && exec evince x.pdf'

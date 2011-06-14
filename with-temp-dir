@@ -1,0 +1,13 @@
+#!@cfg/sh@ -e
+#### This code is written by Trent W. Buck <trentbuck@gmail.com> and
+#### placed in the Public Domain.  All warranties are disclaimed.
+d="`mktemp -d`"
+trap "rm -rf \"$d\"" 0 TERM INT QUIT
+echo "with-temp-dir: entering directory \`$d'" >&2
+test $# -gt 0 ||
+echo "This directory will be deleted when you exit." >&2
+(
+    cd "$d"
+    "${@:-$SHELL}" 
+    )
+echo "with-temp-dir: leaving directory \`$d'" >&2

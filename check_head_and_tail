@@ -1,0 +1,72 @@
+#!/usr/bin/python
+from optparse import OptionParser
+import sys
+import hashlib
+import gzip
+import fcntl
+
+def main():
+
+        parser = OptionParser()
+        parser.add_option("-o", "--offset",dest="offset",metavar="OFFSET",
+                          type="int",
+                          help="Offset between head and tail")
+        parser.add_option("-m", "--md5",dest="md5",metavar="MD5",
+                          help="md5sum of head")
+        (options, args) = parser.parse_args()
+
+        if options.offset == None:
+                parser.error("Option offset in mandatory")
+
+        if options.offset < 0:
+                parser.error("Offset is negative!!!")
+
+        if options.offset > 0 and options.md5 == None:
+                parser.error("Option md5 in mandatory unless offset is 0")
+
+        blocksize = 1024
+
+        for file in args:
+                m = hashlib.md5()
+                f = gzip.GzipFile(file)
+                fcntl.flock(f,fcntl.LOCK_SH)
+                position = 0
+
+                if options.offset > 0:
+                        while True:
+                                bytes_to_read = blocksize
+
+                                if position + bytes_to_read >= options.offset:
+                                        bytes_to_read = options.offset - position
+
+                                c = f.read(bytes_to_read)
+                                bytes_read = len(c)
+                                position = position + bytes_read
+
+                                if bytes_read == 0:
+                                        raise RuntimeError("Can only read %d bytes not %d"%(position,options.offset))
+
+                                m.update(c)
+
+                                if position == options.offset:
+                                        break
+
+                                if position > options.offset:
+                                        raise RuntimeError("We read to much data!!!")
+
+                        if options.md5 != m.hexdigest():
+                                raise RuntimeError("md5 %s does not match required %s"%(m.hexdigest(),options.md5))
+
+                while True:
+                        c = f.read(blocksize)
+                        bytes_read = len(c)
+                        if bytes_read == 0:
+                                break
+                        sys.stdout.write(c)
+
+                f.close()
+
+        return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

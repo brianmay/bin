@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+use MIME::Base64;
+use bin::sshpolicy;
+use strict;
+
+my @params;
+if (defined($ENV{SSH_ORIGINAL_COMMAND})) {
+        my @command = split(/\s+/,$ENV{SSH_ORIGINAL_COMMAND});
+        shift(@command);
+        for my $i (@command) {
+                push(@params,decode_base64($i));
+        }
+
+} else {
+        for my $i (@ARGV) {
+                push(@params,decode_base64($i));
+        }
+}
+if (!sshpolicy::check_permission(\@params)) {
+        print STDERR "Permission denied by sshpolicy.\n";
+        exit 1;
+}
+exec(@params);
+exit 1;

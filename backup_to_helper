@@ -1,0 +1,7 @@
+#!/bin/sh -ex
+"$HOME/tree/bin/backup" --batch
+rsync -avP --delete /videos root@helper.mgmt.pri:/backups
+ssh -A brian@merlock.pri "rsync -avP debian encrypted tree root@helper.mgmt.pri:/backups"
+ssh root@dewey.microcomaustralia.com.au 'mysqldump spud > /var/lib/spud/private/spud-`date +%Y%m%d`.sql'
+ssh -A root@helper.mgmt.pri "rsync -avP root@dewey.microcomaustralia.com.au:/var/lib/spud /backups"
+# mirror.microcomaustralia.com.au

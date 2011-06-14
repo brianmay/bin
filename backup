@@ -1,0 +1,126 @@
+#!/bin/sh
+set -ex
+
+BATCH=""
+if [ -n "$1" ]
+then
+    if [ "$1" = "--batch" ]
+    then
+        BATCH="yes"
+    else
+        echo "Unknown parameter $1" 1>&2
+        exit 1
+    fi
+fi
+
+if nc merlock.microcomaustralia.com.au ssh < /dev/null > /dev/null
+then
+    host=merlock.microcomaustralia.com.au
+else
+    host=merlock.pri
+fi
+
+UNISON_ARGS="/home/brian ssh://$host//home/brian"
+UNISON_ARGS="$UNISON_ARGS -path tree -path encrypted/home -path encrypted/vpac"
+
+if [ -n "$BATCH" ]
+then
+    unison -batch $UNISON_ARGS
+else
+    unison-gtk $UNISON_ARGS
+fi
+
+for i in "$HOME/monotone/"*.mtn
+do
+    j="`basename "$i"`"
+    mtn --db="$i" sync "file:///home/brian/tree/.monotone/$j"
+done
+
+exit 0
+
+is_vpac_accessible() {
+    # are we directly attached to network?
+    if ip -6 addr | grep -E '\<inet6 2001:388:60ac:'
+    then
+        return 0
+    fi
+    if ip addr | grep -E '\<inet 172.31.'
+    then
+        return 0
+    fi
+    # do we have a route to the network?
+    if ip -6 route | grep -E '^2001:388:60ac:'
+    then
+        return 0
+    fi
+    if ip route | grep  -E '^172.31.'
+    then
+        return 0
+    fi
+    return 1
+}
+
+is_microcomaustralia_accessible() {
+    # are we directly attached to network?
+    if ip -6 addr | grep -E '\<inet6 2001:44b8:758e:21e[0-9a-f]:'
+    then
+        return 0
+    fi
+    if ip addr | grep -E '\<inet 192.168.'
+    then
+        return 0
+    fi
+    # do we have a route to the network?
+    if ip -6 route | grep -E '^2001:44b8:758e:21e0:'
+    then
+        return 0
+    fi
+    if ip route | grep  -E '^192.168.'
+    then
+        return 0
+    fi
+    return 1
+}
+
+if [ "`hostname`" != "aquitard" ]
+then
+    if is_vpac_accessible
+    then
+        for i in ~/monotone/*.mtn
+        do
+            j="`basename "$i"`"
+            mtn --db="$i" sync "ssh://brian@sys12.in.vpac.org//home/brian/monotone/$j"
+        done
+    fi
+fi
+
+if [ "`hostname`" != "webby" ]
+then
+    for i in ~/monotone/*.mtn
+    do
+        j="`basename "$i"`"
+        mtn --db="$i" sync "ssh://brian@webby.microcomaustralia.com.au//home/brian/monotone/$j"
+    done
+fi
+
+if [ "`hostname`" != "oncilla" ]
+then
+    if is_microcomaustralia_accessible
+    then
+        for i in ~/monotone/*.mtn
+        do
+            j="`basename "$i"`"
+            mtn --db="$i" sync "ssh://brian@webby.microcomaustralia.com.au//home/brian/monotone/$j"
+            mtn --db="$i" sync "ssh://brian@oncilla.microcomaustralia.com.au//home/brian/monotone/$j"
+            mtn --db="$i" sync "ssh://brian@merlock.microcomaustralia.com.au//home/brian/monotone/$j"
+        done
+    else
+        for i in ~/monotone/*.mtn
+        do
+            j="`basename "$i"`"
+            mtn --db="$i" sync "ssh://brian@webby.microcomaustralia.com.au+webby.pri//home/brian/monotone/$j"
+            mtn --db="$i" sync "ssh://brian@webby.microcomaustralia.com.au+oncilla.pri//home/brian/monotone/$j"
+            mtn --db="$i" sync "ssh://brian@webby.microcomaustralia.com.au+merlock.pri//home/brian/monotone/$j"
+        done
+    fi
+fi

@@ -1,0 +1,70 @@
+#!/usr/bin/perl -w
+use MIME::Base64;
+use Getopt::Long qw(:config require_order pass_through);
+use Pod::Usage;
+use strict;
+
+my $help = 0;
+my $man = 0;
+my $port = undef;
+GetOptions('help|?' => \$help, man => \$man,
+		'p=s' => \$port) or pod2usage(2);
+pod2usage(1) if $help;
+pod2usage(-exitstatus => 0, -verbose => 2) if $man;
+
+
+my @params=();
+push (@params,"ssh");
+if (defined($port)) {
+        push (@params,"-p$port");
+}
+my $host = shift(@ARGV);
+if (!defined($host)) {
+        print STDERR "No host name given.\n";
+        exit 1;
+}
+if ($host =~ /^-/) {
+        print STDERR "Host name $host looks like an option.\n";
+        exit 1;
+}
+push (@params,"--");
+push (@params,$host);
+push (@params,"bin/sshshell");
+
+for my $i (@ARGV) {
+        push(@params,encode_base64($i,""));
+}
+exec(@params);
+exit 1;
+
+=head1 NAME
+
+sshexec - Run a remote ssh command securely without repeated parsing
+
+=head1 SYNOPSIS
+
+sshexec [options] [commandline...]
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-help>
+
+Print a brief help message and exits.
+
+=item B<-man>
+
+Prints the manual page and exits.
+
+=item B<-host> host
+
+Connect to remote host host.
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will do stuff and exit.
+
+=cut

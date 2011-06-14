@@ -1,0 +1,2 @@
+#!@cfg/sh@ -e
+scp -S fsh "$@"
