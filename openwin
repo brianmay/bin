@@ -260,7 +260,7 @@ main() {
             fi
         fi
 
-        if [ "$domain_match" -gt 0 ] && [ "$protocol"=="ssh" ]
+        if [ "$domain_match" -gt 0 ] && [ "$protocol" = "ssh" ]
         then
             if ! nc "$domain_host" "$protocol" < /dev/null > /dev/null
             then
