@@ -99,7 +99,7 @@ do
         then
             if [ "`hostname`" != "aquitard" ]
             then
-                PREFIX="ssh -t -A ssh -t -A brian@sys12.in.vpac.org"
+                PREFIX="ssh -t -A brian@sys12.in.vpac.org"
             fi
             $PREFIX ssh-add .ssh/id_rsa
         fi
