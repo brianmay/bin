@@ -238,14 +238,14 @@ main() {
     domain_match=0
     while [ "$domain_match" -eq 0 ] && read i
     do
+        domain_name="`echo "$i" | awk -F: '{ print $1 }'`"
+        domain_theme="`echo "$i" | awk -F: '{ print $2 }'`"
         if [ -n "$domain_name" ]
         then
             domain_host="$host.$domain_name"
         else
             domain_host="$host"
         fi
-        domain_name="`echo "$i" | awk -F: '{ print $1 }'`"
-        domain_theme="`echo "$i" | awk -F: '{ print $2 }'`"
 
         if [ "$host_match" -gt 0 ]
         then
