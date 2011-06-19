@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# USAGE: ./bts-submitter email1@example.com email2@example.com ...
+
+set -e
+
+message=/tmp/bts-submitter-$$$$
+rm -f $message
+
+for field in submitter owner
+do
+    bugs=""
+    for email in $@
+    do
+        bugs="$bugs `bts select $field:$email`"
+    done
+    for bug in $bugs
+    do
+        echo $field $bug ! >> $message
+    done
+done
+echo thanks >> $message
+#cat $message | mail control@bugs.debian.org
+cat $message
+rm -f $message
