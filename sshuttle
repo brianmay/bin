@@ -1,0 +1,8 @@
+#!/bin/sh
+set -ex
+
+DST="$TMP/sshuttle"
+
+rm -rf "$DST"
+cp -a "$HOME/tree/sshuttle.tproxy" "$DST"
+"$DST/sshuttle" "$@"

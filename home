@@ -1,4 +1,0 @@
-#!/bin/sh -ex
-chmod +x $HOME/Dropbox/sshuttle/sshuttle
-dns="$(cat /etc/resolv.conf | sed -n 's/nameserver //p' | head -1)"
-$HOME/Dropbox/sshuttle/sshuttle -r webby.microcomaustralia.com.au 192.168.0.0/16 59.167.180.192/29 2001:44b8:758e:21e0::0/60 -vv --dns
