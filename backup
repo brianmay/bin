@@ -33,7 +33,8 @@ fi
 for i in "$HOME/monotone/"*.mtn
 do
     j="`basename "$i"`"
-    mtn --db="$i" sync "file:///home/brian/tree/.monotone/$j"
+    k="/home/brian/tree/.monotone/$j"
+    mtn --db="$k" sync "file://$i"
 done
 
 exit 0
