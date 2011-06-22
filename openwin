@@ -92,10 +92,10 @@ exec_ssh() {
     if [ -n "$RUSER" ]
     then
         TITLE="$RUSER@$HOST"
-        open_window "$THEME" "$TITLE" ssh -t $_X $RUSER@$HOST "$*"
+        open_window "$THEME" "$TITLE" ssh -t $ssh_opts $RUSER@$HOST "$*"
     else
         TITLE="$HOST"
-        open_window "$THEME" "$TITLE" ssh -t $_X $HOST "$*"
+        open_window "$THEME" "$TITLE" ssh -t $ssh_opts $HOST "$*"
     fi
 }
 
@@ -127,7 +127,7 @@ exec_rdesktop() {
 main() {
     local _TEMP
 
-    _TEMP=`getopt -o '' --long root,X -n'login' -- "$@"`
+    _TEMP=`getopt -o '' --long root --options X,A -n'login' -- "$@"`
 
     if [ $? != 0 ]
     then
@@ -139,11 +139,11 @@ main() {
 
     local username
     local protocol
-    local _X
+    local ssh_opts
 
     username=""
     protocol=""
-    _X=""
+    ssh_opts=""
 
     while true
     do
@@ -152,9 +152,9 @@ main() {
             shift
             username="root"
             ;;
-        --X)
+        -X|-A)
+            ssh_opts="$ssh_opts $1"
             shift
-            _X="-X"
             ;;
         --)
             shift;
