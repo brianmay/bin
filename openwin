@@ -199,15 +199,21 @@ main() {
     host_entry="`grep "^$host:" "$HOME/.openwin.hosts" || true`"
     if [ -n "$host_entry" ]
     then
-            host_domain="`echo "$host_entry" | awk -F: '{print $2}'`"
-            host_username="`echo "$host_entry" | awk -F: '{print $3}'`"
-            host_protocol="`echo "$host_entry" | awk -F: '{print $4}'`"
+            host_host="`echo "$host_entry" | awk -F: '{print $2}'`"
+            host_domain="`echo "$host_entry" | awk -F: '{print $3}'`"
+            host_username="`echo "$host_entry" | awk -F: '{print $4}'`"
+            host_protocol="`echo "$host_entry" | awk -F: '{print $5}'`"
             host_match=1
     else
             host_domain=""
             host_username=""
             host_protocol=""
             host_match=0
+    fi
+
+    if [ -n "$host_host" ]
+    then
+        host="$host_host"
     fi
 
     if [ -n "$username" ]
@@ -247,27 +253,28 @@ main() {
             domain_host="$host"
         fi
 
-        if [ "$host_match" -gt 0 ]
+        if [ "$host_match" -gt 0 -a "$host_domain" != "$domain_name" ]
         then
-            if [ "$host_domain" = "$domain_name" ]
+            continue
+        fi
+
+        if ! getent hosts "$domain_host" > /dev/null
+        then
+            continue
+        fi
+
+        if [ "$protocol" != "localhost" ]
+        then
+            if [ -z "$domain_name" ]
             then
-                domain_match=1
-            fi
-        else
-            if getent hosts "$domain_host" > /dev/null
+                continue
+            elif [ $protocol = "ssh" ] && ! nc "$domain_host" "$protocol" < /dev/null > /dev/null
             then
-                domain_match=1
+                continue
             fi
         fi
 
-        if [ "$domain_match" -gt 0 ] && [ "$protocol" = "ssh" ]
-        then
-            if ! nc "$domain_host" "$protocol" < /dev/null > /dev/null
-            then
-                domain_match=0
-            fi
-        fi
-
+        domain_match=1
     done < "$HOME/.openwin.domains"
 
     if [ "$domain_match" -gt 0 ]
