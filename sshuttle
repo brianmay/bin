@@ -4,5 +4,5 @@ set -ex
 DST="$TMP/sshuttle"
 
 rm -rf "$DST"
-cp -a "$HOME/tree/sshuttle.tproxy" "$DST"
+cp -a "$HOME/tree/sshuttle.stg" "$DST"
 "$DST/sshuttle" "$@"

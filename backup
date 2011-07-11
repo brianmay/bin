@@ -13,29 +13,32 @@ then
     fi
 fi
 
-if nc merlock.microcomaustralia.com.au ssh < /dev/null > /dev/null
+if [ "`hostname`" != "merlock" ]
 then
-    host=merlock.microcomaustralia.com.au
-else
-    host=merlock.pri
+    if nc merlock.microcomaustralia.com.au ssh < /dev/null > /dev/null
+    then
+        host=merlock.microcomaustralia.com.au
+    else
+        host=merlock.pri
+    fi
+
+    UNISON_ARGS="/home/brian ssh://$host//home/brian"
+    UNISON_ARGS="$UNISON_ARGS -path tree -path encrypted/home -path encrypted/vpac"
+
+    if [ -n "$BATCH" ]
+    then
+        unison -batch $UNISON_ARGS
+    else
+        unison-gtk $UNISON_ARGS
+    fi
+
+    for i in "$HOME/monotone/"*.mtn
+    do
+        j="`basename "$i"`"
+        k="/home/brian/tree/.monotone/$j"
+        mtn --db="$k" sync "file://$i"
+    done
 fi
-
-UNISON_ARGS="/home/brian ssh://$host//home/brian"
-UNISON_ARGS="$UNISON_ARGS -path tree -path encrypted/home -path encrypted/vpac"
-
-if [ -n "$BATCH" ]
-then
-    unison -batch $UNISON_ARGS
-else
-    unison-gtk $UNISON_ARGS
-fi
-
-for i in "$HOME/monotone/"*.mtn
-do
-    j="`basename "$i"`"
-    k="/home/brian/tree/.monotone/$j"
-    mtn --db="$k" sync "file://$i"
-done
 
 exit 0
 

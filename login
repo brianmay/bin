@@ -30,7 +30,7 @@ do
 	esac
 done
 
-dropbox start > /dev/null
+dropbox start > /dev/null || true
 
 is_vpac_accessible() {
     ip addr | grep -E '\<inet 172.31.[0-9]+.[0-9]+\>' > /dev/null
@@ -40,9 +40,9 @@ for MOUNT in $MOUNTS
 do
     case $MOUNT in
     spud)
-        if ! [ -f "/home/brian/zoph/.spud.txt" ]
+        if ! [ -f "/home/brian/spud/.spud.txt" ]
         then
-            sshfs root@dewey.microcomaustralia.com.au:/var/lib/zoph ~/zoph
+            sshfs root@dewey.microcomaustralia.com.au:/var/lib/spud ~/spud
         fi
     ;;
 
@@ -55,7 +55,7 @@ do
         fi
         if ! mount | grep "^[a-z]\+ on $DIR type" > /dev/null
         then
-            encfs --ondemand --extpass="ssh-askpass '$MOUNT mount'" --idle=60 "$HOME/encrypted/$MOUNT" "$DIR"
+            encfs "$HOME/encrypted/$MOUNT" "$DIR"
         fi
     ;;
 
@@ -101,7 +101,7 @@ do
             then
                 PREFIX="ssh -t -A brian@sys12.in.vpac.org"
             fi
-            $PREFIX ssh-add .ssh/id_rsa
+            $PREFIX ssh-add /home/brian/.ssh/id_rsa
         fi
     ;;
 
@@ -112,7 +112,7 @@ do
             then
                 PREFIX="ssh -t -A brian@webby.microcomaustralia.com.au"
             fi
-            $PREFIX ssh-add .ssh/id_rsa
+            $PREFIX ssh-add "/home/brian/.ssh/id_rsa"
         fi
     ;;
 
@@ -123,7 +123,7 @@ do
             then
                 PREFIX="ssh -t -A brian@webby.microcomaustralia.com.au"
             fi
-            $PREFIX ssh-add .ssh/id_root
+            $PREFIX ssh-add "/home/brian/.ssh/id_root"
         fi
     ;;
 
