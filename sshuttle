@@ -1,6 +1,11 @@
 #!/bin/sh
 set -ex
 
+if [ -z "$TMP" ]
+then
+    TMP=/tmp
+fi
+
 DST="$TMP/sshuttle"
 
 rm -rf "$DST"
