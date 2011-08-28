@@ -9,5 +9,6 @@ fi
 DST="$TMP/sshuttle"
 
 rm -rf "$DST"
-cp -a "$HOME/tree/sshuttle.stg" "$DST"
+cp -a "$HOME/tree/sshuttle.tproxy" "$DST"
+export PYTHONPATH="/tmp/sshuttle/PyXAPI-0.1/build/lib.linux-x86_64-2.7"
 "$DST/sshuttle" "$@"
