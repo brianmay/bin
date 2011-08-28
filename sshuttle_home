@@ -1,5 +1,6 @@
 #!/bin/sh -ex
 dns="$(cat /etc/resolv.conf | sed -n 's/nameserver //p' | head -1)"
+$HOME/tree/sshuttle.tproxy/iproutes
 
 if [ "$1" = "--ipv6" ]
 then
