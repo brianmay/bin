@@ -36,35 +36,15 @@ is_vpac_accessible() {
     ip addr | grep -E '\<inet 172.31.[0-9]+.[0-9]+\>' > /dev/null
 }
 
-for MOUNT in $MOUNTS
-do
-    case $MOUNT in
-    spud)
-        if ! [ -f "/home/brian/spud/.spud.txt" ]
-        then
-            sshfs root@dewey.microcomaustralia.com.au:/var/lib/spud ~/spud
-        fi
-    ;;
+is_home_accessible() {
+    if nc merlock.pri ssh < /dev/null > /dev/null
+    then
+        return 0
+    else
+        return 1
+    fi
+}
 
-    home|vpac|archives)
-        DIR="$HOME/private/$MOUNT"
-        if ! [ -d "$DIR" ]
-        then
-            echo "Directory $DIR does not exist" >&2
-            exit 1
-        fi
-        if ! mount | grep "^[a-z]\+ on $DIR type" > /dev/null
-        then
-            encfs "$HOME/encrypted/$MOUNT" "$DIR"
-        fi
-    ;;
-
-    *)
-        echo "Unknown mount $MOUNT" >&2
-        exit 1
-    ;;
-    esac
-done
 
 for NETWORK in $NETWORKS
 do
@@ -91,7 +71,7 @@ do
 
         if ! is_vpac_accessible
         then
-            echo "openvpn failed to setup in time" >&2
+            echo "vpac failed to setup in time" >&2
             exit 1
         fi
 
@@ -106,6 +86,27 @@ do
     ;;
 
     home)
+        if ! is_home_accessible
+        then
+            xterm -e sudo SSH_AUTH_SOCK="$SSH_AUTH_SOCK" ~/tree/bin/sshuttle_home --ipv6 --tproxy &
+
+            for i in {1..10}
+            do
+                sleep 1
+                if is_home_accessible
+                then
+                    break
+                fi
+            done
+        fi
+
+        if ! is_home_accessible
+        then
+            echo "home failed to setup in time" >&2
+            exit 1
+        fi
+
+
         if ! ssh-add -l | grep 55:0c:bf:f1:d9:3d:d4:91:fe:b4:88:9d:c3:62:61:3d > /dev/null
         then
             if [ "`hostname`" != "webby" ] && [ "`hostname`" != "andean" ]
@@ -129,6 +130,36 @@ do
 
     *)
         echo "Unknown network $NETWORK" >&2
+        exit 1
+    ;;
+    esac
+done
+
+for MOUNT in $MOUNTS
+do
+    case $MOUNT in
+    spud)
+        if ! [ -f "/home/brian/spud/.spud.txt" ]
+        then
+            sshfs root@dewey.microcomaustralia.com.au:/var/lib/spud ~/spud
+        fi
+    ;;
+
+    home|vpac|archives)
+        DIR="$HOME/private/$MOUNT"
+        if ! [ -d "$DIR" ]
+        then
+            echo "Directory $DIR does not exist" >&2
+            exit 1
+        fi
+        if ! mount | grep "^[a-z]\+ on $DIR type" > /dev/null
+        then
+            encfs "$HOME/encrypted/$MOUNT" "$DIR"
+        fi
+    ;;
+
+    *)
+        echo "Unknown mount $MOUNT" >&2
         exit 1
     ;;
     esac
