@@ -1,11 +1,37 @@
-#!/bin/sh -ex
-dns="$(cat /etc/resolv.conf | sed -n 's/nameserver //p' | head -1)"
-$HOME/tree/sshuttle.tproxy/iproutes
+#!/bin/sh
+set -ex
 
-if [ "$1" = "--ipv6" ]
-then
-    shift
-    exec "$HOME/tree/bin/sshuttle" -r webby.microcomaustralia.com.au 192.168.0.0/16 59.167.180.192/29 2001:44b8:4112:8a00::/56 --exclude 2001:44b8:4112:8a03::3 -vv --dns "$@"
-else
-    exec "$HOME/tree/bin/sshuttle" -r webby.microcomaustralia.com.au 192.168.0.0/16 59.167.180.192/29 -vv --dns "$@"
-fi
+TEMP=`getopt -o '' --long ipv6,tproxy -n'sshuttle_home' -- "$@"`
+
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$TEMP"
+
+ARGS=""
+while true
+do
+    case "$1" in
+    --ipv6)
+        shift
+        ARGS="$ARGS 2001:44b8:4112:8a00::/56 --exclude 2001:44b8:4112:8a03::3"
+        ;;
+
+    --tproxy)
+        shift
+        $HOME/tree/sshuttle.tproxy/iproutes
+        ARGS="$ARGS --method=tproxy"
+        ;;
+
+    --)
+        shift
+        break
+        ;;
+
+    *)
+        echo "Internal error!"
+        exit 1
+        ;;
+    esac
+done
+
+exec "$HOME/tree/bin/sshuttle" -r webby.microcomaustralia.com.au 192.168.0.0/16 59.167.180.192/29 $ARGS -vv --dns "$@"
