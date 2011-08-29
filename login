@@ -86,6 +86,15 @@ do
     ;;
 
     home)
+        if ! ssh-add -l | grep 55:0c:bf:f1:d9:3d:d4:91:fe:b4:88:9d:c3:62:61:3d > /dev/null
+        then
+            if [ "`hostname`" != "webby" ] && [ "`hostname`" != "andean" ]
+            then
+                PREFIX="ssh -t -A brian@webby.microcomaustralia.com.au"
+            fi
+            $PREFIX ssh-add "/home/brian/.ssh/id_rsa"
+        fi
+
         if ! is_home_accessible
         then
             xterm -e sudo SSH_AUTH_SOCK="$SSH_AUTH_SOCK" ~/tree/bin/sshuttle_home --ipv6 --tproxy &
@@ -104,16 +113,6 @@ do
         then
             echo "home failed to setup in time" >&2
             exit 1
-        fi
-
-
-        if ! ssh-add -l | grep 55:0c:bf:f1:d9:3d:d4:91:fe:b4:88:9d:c3:62:61:3d > /dev/null
-        then
-            if [ "`hostname`" != "webby" ] && [ "`hostname`" != "andean" ]
-            then
-                PREFIX="ssh -t -A brian@webby.microcomaustralia.com.au"
-            fi
-            $PREFIX ssh-add "/home/brian/.ssh/id_rsa"
         fi
     ;;
 
