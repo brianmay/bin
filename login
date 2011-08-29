@@ -134,6 +134,8 @@ do
     esac
 done
 
+$HOME/tree/bin/backup --batch
+
 for MOUNT in $MOUNTS
 do
     case $MOUNT in
@@ -163,5 +165,3 @@ do
     ;;
     esac
 done
-
-$HOME/tree/bin/backup --batch
