@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -e
 if [ "$1" = "--rebuild" ]
 then
     OPT="--rebuild"
@@ -7,8 +8,8 @@ else
     OPT="--refresh"
 fi
 
-for i in "$@"
-do
+doit() {
+    local i="$1"
     if ! [ -e "$i.umask" ]
     then
         echo "Cannot find $i.umask" 1>&2
@@ -22,4 +23,27 @@ do
 
     umask `cat "$i.umask"`
     ikiwiki --setup $i.setup --verbose "$OPT"
-done
+}
+
+if [ -z "$*" ]
+then
+    while [ "$PWD" != "/" ]
+    do
+        name="../$(basename "$PWD")"
+        umaskfile="../$(basename "$PWD").umask"
+        setupfile="../$(basename "$PWD").setup"
+        if [ -f "$umaskfile" -a -f "$setupfile" ]
+        then
+            doit "$name"
+            exit 0
+        fi
+        cd ..
+    done
+    echo "Not in a project directory" >&2
+    exit 1
+else
+    for i in "$@"
+    do
+        doit "$i"
+    done
+fi
