@@ -1,7 +1,25 @@
 #!/bin/sh -ex
 "$HOME/tree/bin/backup" --batch
-rsync -avP --delete /videos root@helper.mgmt.pri:/backups
-ssh -A brian@merlock.pri "rsync -avP debian encrypted tree root@helper.mgmt.pri:/backups"
-ssh root@dewey.microcomaustralia.com.au 'mysqldump spud > /var/lib/spud/private/spud-`date +%Y%m%d`.sql'
-ssh -A root@helper.mgmt.pri "rsync -avP root@dewey.microcomaustralia.com.au:/var/lib/spud /backups"
-# mirror.microcomaustralia.com.au
+
+if false
+then
+    rsync -avP --delete /videos root@helper.mgmt.pri:/backups
+    rsync -avP --delete $HOME/Pictures root@helper.mgmt.pri:/backups
+    ssh -A brian@merlock.pri "rsync -avP debian encrypted tree root@helper.mgmt.pri:/backups"
+    ssh root@dewey.microcomaustralia.com.au 'mysqldump spud > /var/lib/spud/private/spud-`date +%Y%m%d`.sql'
+    ssh -A root@helper.mgmt.pri "rsync -avP root@dewey.microcomaustralia.com.au:/var/lib/spud /backups"
+    # mirror.microcomaustralia.com.au
+fi
+
+if true
+then
+    DST="/media/sdc1/brian"
+    rsync -avP --delete /videos "$DST"
+    rsync -avP --delete $HOME/Pictures "$DST"
+    rsync -avP brian@merlock.pri:debian "$DST"
+    rsync -avP brian@merlock.pri:encrypted "$DST"
+    rsync -avP brian@merlock.pri:tree "$DST"
+    ssh root@dewey.microcomaustralia.com.au 'mysqldump spud > /var/lib/spud/private/spud-`date +%Y%m%d`.sql'
+    rsync -avP root@dewey.microcomaustralia.com.au:/var/lib/spud "$DST"
+    # mirror.microcomaustralia.com.au
+fi
