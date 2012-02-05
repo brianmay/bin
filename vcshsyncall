@@ -1,0 +1,2 @@
+#!/bin/sh
+vcshsync webby.pri merlock.pri oncilla.pri hq.in.vpac.org hop.vpac.org

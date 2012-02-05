@@ -1,0 +1,47 @@
+#!/bin/sh
+set -ex
+
+for i in $@
+do
+    if [ "$i" != "localhost" ]
+    then
+        rsync -av "$HOME/tree/mr" "$HOME/tree/vcsh" "$HOME/tree/vcsh.repos" "$i:tree"
+    else
+        ssh() { shift; $@; }
+    fi
+
+    ssh "$i" sh << EOF
+#!/bin/sh
+set -ex
+PATH="\$PATH:\$HOME/tree/mr:\$HOME/tree/vcsh"
+
+if [ -f .config.list ]
+then
+    while read i
+    do
+        if [ -f \$i ] && [ ! -h \$i ]
+        then
+            rm -f \$i
+        else
+            echo "can't remove \$i"
+        fi
+    done < .config.list
+    rm -f .config.list .config.version .config.ini
+fi
+if [ ! -d .config/vcsh/repo.d/mr.git ]; then vcsh clone ~/tree/vcsh.repos/mr mr; fi
+cd .config; mr update; cd ..
+
+link() {
+    if [ ! -f ".config/mr/config.d/\$1.vcsh" ]; then ln -s "../available.d/\$1.vcsh" ".config/mr/config.d"; fi
+}
+link common
+#link zsh
+#link site-home
+#link ssh
+#link x
+#link site-vlsci
+
+cd .config; mr update; cd ..
+EOF
+
+done
