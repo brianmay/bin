@@ -19,11 +19,11 @@ if [ -f .config.list ]
 then
     while read i
     do
-        if [ -f \$i ] && [ ! -h \$i ]
+        if [ -f "\$i" ] && [ ! -h "\$i" ]
         then
-            rm -f \$i
+            rm -f "\$i"
         else
-            echo "can't remove \$i"
+            rmdir "\$i" || echo "*** can't remove \$i"
         fi
     done < .config.list
     rm -f .config.list .config.version .config.ini
