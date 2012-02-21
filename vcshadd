@@ -7,11 +7,6 @@ git init --bare "$HOME/tree/vcsh.repos/$NAME"
 
 vcsh init "$NAME"
 vcsh run "$NAME" git remote add origin "~/tree/vcsh.repos/$NAME"
-cat << EOF >> "$HOME/.config/vcsh/repo.d/$NAME.git/config"
-[branch "master"]
-	remote = origin
-	merge = refs/heads/master
-EOF
 
 cat << EOF > "$HOME/.config/mr/available.d/$NAME.vcsh"
 [\$HOME/.config/vcsh/repo.d/$NAME.git]
