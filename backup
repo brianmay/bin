@@ -31,13 +31,6 @@ then
     else
         unison-gtk $UNISON_ARGS
     fi
-
-    for i in "$HOME/monotone/"*.mtn
-    do
-        j="`basename "$i"`"
-        k="/home/brian/tree/.monotone/$j"
-        mtn --db="$k" sync "file://$i"
-    done
 fi
 
 exit 0
