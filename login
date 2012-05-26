@@ -30,7 +30,8 @@ do
 	esac
 done
 
-dropbox start > /dev/null || true
+#dropbox start > /dev/null
+SpiderOak &
 
 is_vpac_accessible() {
     ip addr | grep -E '\<inet 172.31.[0-9]+.[0-9]+\>' > /dev/null
