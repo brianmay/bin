@@ -31,7 +31,7 @@ do
 done
 
 #dropbox start > /dev/null
-SpiderOak &
+SpiderOak --headless -v >> /tmp/spideroak.log &
 
 is_vpac_accessible() {
     ip addr | grep -E '\<inet 172.31.[0-9]+.[0-9]+\>' > /dev/null
