@@ -5,7 +5,7 @@ for i in $@
 do
     if [ "$i" != "localhost" ]
     then
-        rsync -av "$HOME/tree/mr" "$HOME/tree/vcsh" "$HOME/tree/vcsh.repos" "$i:tree"
+        rsync -av "$HOME/tree/mr" "$HOME/tree/vcsh" "$HOME/tree/vcsh.repos" "$HOME/tree/oh-my-zsh" "$i:tree"
     else
         ssh() { shift; $@; }
     fi
