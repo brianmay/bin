@@ -23,7 +23,7 @@ then
     fi
 
     UNISON_ARGS="/home/brian ssh://$host//home/brian"
-    UNISON_ARGS="$UNISON_ARGS -path tree -path encrypted/home -path encrypted/vpac"
+    UNISON_ARGS="$UNISON_ARGS -path tree -path encrypted/home -path encrypted/vpac -path encrypted/backdoors"
 
     if [ -n "$BATCH" ]
     then
