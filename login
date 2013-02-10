@@ -9,6 +9,7 @@ eval set -- "$TEMP"
 
 NETWORKS=""
 MOUNTS=""
+do_home=""
 
 while true
 do
@@ -30,8 +31,8 @@ do
 	esac
 done
 
-#dropbox start > /dev/null
-SpiderOak --headless -v >> /tmp/spideroak.log &
+dropbox start > /dev/null || true
+SpiderOak &
 
 is_vpac_accessible() {
     ip addr | grep -E '\<inet 172.31.[0-9]+.[0-9]+\>' > /dev/null
@@ -117,6 +118,9 @@ do
             echo "home failed to setup in time" >&2
             exit 1
         fi
+
+        do_home="yes"
+        $HOME/tree/bin/backup --batch
     ;;
 
     root)
@@ -138,8 +142,6 @@ do
     esac
 done
 
-$HOME/tree/bin/backup --batch
-
 for MOUNT in $MOUNTS
 do
     case $MOUNT in
@@ -150,16 +152,21 @@ do
         fi
     ;;
 
-    home|vpac|archives)
-        DIR="$HOME/private/$MOUNT"
-        if ! [ -d "$DIR" ]
+    home|vpac|backdoors|archives)
+        if [ -n "$do_home" ]
         then
-            echo "Directory $DIR does not exist" >&2
-            exit 1
-        fi
-        if ! mount | grep "^[a-z]\+ on $DIR type" > /dev/null
-        then
-            encfs "$HOME/encrypted/$MOUNT" "$DIR"
+            DIR="$HOME/private/$MOUNT"
+            if ! [ -d "$DIR" ]
+            then
+                echo "Directory $DIR does not exist" >&2
+                exit 1
+            fi
+            if ! mount | grep "^[a-z]\+ on $DIR type" > /dev/null
+            then
+                encfs "$HOME/encrypted/$MOUNT" "$DIR"
+            fi
+        else
+            echo "Skipping mount of $MOUNT" >&2
         fi
     ;;
 
