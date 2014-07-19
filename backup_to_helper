@@ -13,13 +13,15 @@ fi
 
 if true
 then
-    DST="/media/sdc1/brian"
+    DST="/media/sdd1/brian"
     rsync -avP --delete /videos "$DST"
     rsync -avP --delete $HOME/Pictures "$DST"
-    rsync -avP brian@merlock.pri:debian "$DST"
+    rsync -avP root@webby.pri:/backups "$DST"
+    rm -rf "$DST"/debian
     rsync -avP brian@merlock.pri:encrypted "$DST"
     rsync -avP brian@merlock.pri:tree "$DST"
-    ssh root@dewey.microcomaustralia.com.au 'mysqldump spud > /var/lib/spud/private/spud-`date +%Y%m%d`.sql'
+#    ssh root@dewey.microcomaustralia.com.au 'mysqldump spud > /var/lib/spud/private/spud-`date +%Y%m%d`.sql'
+    ssh root@dewey.microcomaustralia.com.au 'pg_dump --exclude-schema=bucardo spud > /var/lib/spud/private/spud-`date +%Y%m%d`.psql'
     rsync -avP root@dewey.microcomaustralia.com.au:/var/lib/spud "$DST"
     # mirror.microcomaustralia.com.au
 fi

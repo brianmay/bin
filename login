@@ -31,14 +31,12 @@ do
 	esac
 done
 
-dropbox start > /dev/null || true
-SpiderOak &
-
 is_vpac_accessible() {
     ip addr | grep -E '\<inet 172.31.[0-9]+.[0-9]+\>' > /dev/null
 }
 
 is_home_accessible() {
+    return 0
     if nc merlock.pri ssh < /dev/null > /dev/null
     then
         return 0
@@ -95,6 +93,7 @@ do
             if [ "`hostname`" != "webby" ] && [ "`hostname`" != "andean" ]
             then
                 PREFIX="ssh -t -A brian@webby.microcomaustralia.com.au"
+#                PREFIX="ssh -t -A brian@webby.pri"
             fi
             $PREFIX ssh-add "/home/brian/.ssh/id_rsa"
         fi
@@ -120,6 +119,7 @@ do
         fi
 
         do_home="yes"
+        # git annex assistant --autostart
         $HOME/tree/bin/backup --batch
     ;;
 
@@ -155,11 +155,10 @@ do
     home|vpac|backdoors|archives)
         if [ -n "$do_home" ]
         then
-            DIR="$HOME/private/$MOUNT"
+            DIR="/mnt/brian/private/$MOUNT"
             if ! [ -d "$DIR" ]
             then
-                echo "Directory $DIR does not exist" >&2
-                exit 1
+                mkdir -p "$DIR"
             fi
             if ! mount | grep "^[a-z]\+ on $DIR type" > /dev/null
             then
